@@ -51,3 +51,38 @@ FROM
     ON be.`boyfriend_id` = bo.`id` 
 WHERE be.`id` IS NULL ;
 
+
+#案例1：查询那个部门没有员工
+#左外
+SELECT 
+  d.`department_name`,
+  e.*
+FROM
+  `departments` AS d 
+  LEFT OUTER JOIN `employees` AS e 
+    ON d.`department_id` = e.`department_id` 
+    WHERE e.`employee_id` IS NULL;
+
+#右外
+SELECT 
+  DISTINCT d.`department_name`
+FROM
+  `employees` AS e 
+  RIGHT OUTER JOIN `departments` AS d 
+    ON d.`department_id` = e.`department_id` 
+WHERE e.`employee_id` IS NULL ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

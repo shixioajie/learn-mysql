@@ -78,10 +78,37 @@ WHERE e.`employee_id` IS NULL ;
 
 
 
+#三道小题
+#一、查询编号>3的女神的男朋友信息，如果有则列出详细，如果没有，用null填充
+SELECT 
+ 
+  bo.* 
+FROM
+  beauty AS be 
+  LEFT OUTER JOIN boys AS bo 
+    ON be.`boyfriend_id` = bo.`id`
+    WHERE be.`id`>3 ;
+    
+#二、查询那个城市没有部门
+SELECT 
+  depar.`department_name`,
+  loc.`city` 
+FROM
+  `locations` AS loc 
+  LEFT OUTER JOIN `departments` AS depar 
+    ON depar.`location_id` = loc.`location_id`
+    WHERE depar.`department_id` IS NULL;
 
 
-
-
+#三、查询部门名为SAL或IT的员工信息
+SELECT 
+  em.*,
+  dep.`department_name` 
+FROM
+  departments AS dep 
+  LEFT OUTER JOIN employees AS em 
+    ON dep.`department_id` = em.`department_id` 
+WHERE dep.`department_name` IN ('SAL', 'IT') ;
 
 
 

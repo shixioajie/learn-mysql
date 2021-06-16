@@ -41,6 +41,9 @@ select first_name from employees where
 ③标量子查询，一般搭配单行操作符使用如：   > < >= <= = <>
 列子查询，一般搭配多行操作符号使用
 in、any|some、all
+④子查询的执行优先于主查询执行，主查询的条件用到了子查询的结果。
+
+
 */
 
 #1.标量子查询
@@ -76,7 +79,7 @@ SELECT
 #②查询143号员工的salary
 SELECT salary FROM employees WHERE employee_id = 143;
 
-#③查询员工的姓名、job_id 、 工资，要求 job-id=①并且salary>②
+#③查询员工的姓名、job_id 、 工资，要求 job_id=①并且salary>②
 SELECT 
   `last_name`,
   `job_id`,
@@ -95,6 +98,59 @@ WHERE job_id =
   FROM
     employees 
   WHERE employee_id = 143) ;
+
+
+#案例3：返回公司工资最少的员工的last_name,job_id和salary
+
+#①查询公司的最低工资
+SELECT MIN(salary) FROM `employees`;
+
+#②查询last_name,job_id和salary，要求salary=①
+SELECT last_name,job_id,salary FROM employees WHERE salary = (SELECT MIN(salary) FROM `employees`);
+
+#案例4：查询最低工资大于50号部门最低工资的部门id和其最低工资
+
+#①查询50号部门的最低工资
+SELECT MIN(salary)
+FROM `employees` WHERE department_id = 50;
+
+#②查询每个部门的最低工资
+SELECT MIN(salary),department_id
+FROM employees
+GROUP BY department_id
+
+#② 最低工资大于①的部门id和其最低工资
+SELECT 
+  department_id,
+  MIN(salary) AS minS 
+FROM
+  employees 
+GROUP BY department_id
+HAVING minS > (SELECT MIN(salary)
+FROM `employees` WHERE department_id = 50);
+
+
+#非法使用标量子查询
+SELECT 
+  department_id,
+  MIN(salary) AS minS 
+FROM
+  employees 
+GROUP BY department_id 
+HAVING minS > 
+  (SELECT 
+    salary ## 这里成了列子查询
+  FROM
+    `employees` 
+  WHERE department_id = 00 # 查了个不存在的肯定不存在
+  ) ;
+
+#列子查询
+
+
+
+
+
 
 
 

@@ -145,19 +145,155 @@ HAVING minS >
   WHERE department_id = 00 # 查了个不存在的肯定不存在
   ) ;
 
-#列子查询
+
+#列子查询（多行子查询）
+/*
+返回多行
+使用多行比较操作符。
+
+操作符		含义
+IN/NOT IN 	等于列表中的任意一个
+ANY|SOME	和子查询返回的某一个值比较
+ALL		和子查询返回的所有值比较
+
+-》 体会any和all的区别 
+any 任意有任意一个的意思，只要有一个符合就都可以。
+all 全部的意思，必须全部符合才可以。
+*/
+
+
+#案例1：返回 location_id 是1400或1700的部门中的所有员工姓名
+
+
+#①查询location_id是1400或1700的部门编号
+SELECT DISTINCT 
+  `department_id` 
+FROM
+  `departments` AS depar 
+WHERE depar.`location_id` IN (1400, 1700) ;
+
+#②查询员工姓名，要求部门号是①列表中的某一个
+SELECT 
+  em.`last_name` 
+FROM
+  `employees` AS em 
+WHERE em.`department_id` IN 
+  (SELECT DISTINCT 
+    `department_id` 
+  FROM
+    `departments` AS depar 
+  WHERE depar.`location_id` IN (1400, 1700)) ;
+
+
+#这个也可以
+SELECT 
+  em.`last_name` 
+FROM
+  `employees` AS em 
+  LEFT JOIN `departments` AS depar 
+    ON em.`department_id` = depar.`department_id` 
+WHERE depar.`location_id` IN (1400, 1700) ;
 
 
 
+#案例2：返回其它工种中比job_id为`IT_PROG`工种任意工资低的员工的：工号、姓名、job_id 以及 salary
+
+#①查询job_id为`IT_PROG`部门所有工资
+SELECT 
+DISTINCT
+salary
+FROM `employees` WHERE job_id = 'IT_PROG';
 
 
+#②查询员工的：工号、姓名、job_id 以及 salary，salary<①的任意一个
+SELECT 
+  `employee_id`,
+  `last_name`,
+  `job_id`,
+  `salary` 
+FROM
+  `employees` 
+WHERE job_id != 'IT_PROG' 
+  AND salary < ANY 
+  (SELECT DISTINCT 
+    salary 
+  FROM
+    `employees` 
+  WHERE job_id = 'IT_PROG' 
+) ;
 
+#或小于最大的
+SELECT 
+  `employee_id`,
+  `last_name`,
+  `job_id`,
+  `salary` 
+FROM
+  `employees` 
+WHERE job_id != 'IT_PROG' 
+  AND salary < 
+  (SELECT DISTINCT 
+    MAX(salary) 
+  FROM
+    `employees` 
+  WHERE job_id = 'IT_PROG') ;
+  
+  
+#案例3：返回其它部门中比job_id为`IT_PROG`部门所有工资都低的员工，的员工号、姓名、job_id以及salary
+#①job_id为`IT_PROG`部门所有工资
+SELECT 
+DISTINCT
+salary
+FROM `employees`  WHERE job_id= 'IT_PROG';
 
+#②其它部门的工资<① 都低的员工的：员工号、姓名、job_id以及salary 
+SELECT 
+  `employee_id`,
+  `last_name`,
+  `job_id`,
+  `salary` 
+FROM
+  `employees` 
+WHERE salary < ALL 
+  (SELECT DISTINCT 
+    salary 
+  FROM
+    `employees` 
+  WHERE job_id = 'IT_PROG') 
+  AND job_id <> 'IT_PROG' ;
 
+#或
+SELECT 
+  `employee_id`,
+  `last_name`,
+  `job_id`,
+  `salary` 
+FROM
+  `employees` 
+WHERE salary < 
+  (SELECT 
+    MIN(salary) 
+  FROM
+    `employees` 
+  WHERE job_id = 'IT_PROG') 
+  AND job_id <> 'IT_PROG' ;
 
-
-
-
-
-
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 

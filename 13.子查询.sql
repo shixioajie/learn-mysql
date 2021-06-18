@@ -30,6 +30,7 @@ select first_name from employees where
 */
 
 #一、where或having后面
+
 /*
 1、标量子查询（单行子查询）
 2、列子查询（多行子查询）
@@ -46,7 +47,7 @@ in、any|some、all
 
 */
 
-#1.标量子查询
+#1、标量子查询
 
 #案例1：谁的工资比 Abel 高？
 
@@ -146,7 +147,7 @@ HAVING minS >
   ) ;
 
 
-#列子查询（多行子查询）
+#2、列子查询（多行子查询）
 /*
 返回多行
 使用多行比较操作符。
@@ -280,9 +281,97 @@ WHERE salary <
 
   
   
+#3、行子查询（结果集一行多列或多行多列）
+  
+#案例：查询员工编号最小并且工资最高的员工信息
+#------- 使用标量子查询 ---------#
+#①查询最小的员工编号
+SELECT MIN(employee_id)
+FROM employees;
+ 
+#②查询最高工资
+SELECT MAX(salary)
+FROM employees;
+
+
+#③查询员工信息
+SELECT 
+  * 
+FROM
+  employees 
+WHERE employee_id = 
+  (SELECT 
+    MIN(employee_id) 
+  FROM
+    employees) 
+  AND salary = 
+  (SELECT 
+    MAX(salary) 
+  FROM
+    employees) ;
+
+ 
+ /* ----- 列子查询 ----- */
+SELECT 
+  * 
+FROM
+  employees 
+WHERE (employee_id, salary) = 
+  (SELECT 
+    MIN(employee_id),
+    MAX(salary) 
+  FROM
+    employees);
   
   
   
+# select 后面
+# 仅支持标量子查询
+#案例：查询每个部门的员工个数
+
+/* 分组的效果 */
+SELECT 
+  COUNT(employee_id),
+  department_id 
+FROM
+  `employees` 
+GROUP BY `department_id` ;
+
+/* select后子查询的效果 */
+SELECT 
+  depar.*,
+  (SELECT 
+    COUNT(*) 
+  FROM
+    `employees` AS e 
+  WHERE e.department_id = depar.`department_id`) AS me 
+FROM
+  `departments` AS depar ;
+
+  
+ #案例2：查询员工号=102的部门名
+
+SELECT 
+ *
+FROM
+  `departments` AS d 
+WHERE d.`department_id` = 
+  (SELECT 
+    e.`department_id` 
+  FROM
+    `employees` AS e 
+  WHERE e.`employee_id` = 102);
+  
+  
+SELECT 
+  (SELECT 
+    department_name 
+  FROM
+    departments AS d 
+    INNER JOIN employees AS e 
+      ON d.`department_id` = e.`department_id` 
+  WHERE e.`employee_id` = 102
+  ) AS 部门名;
   
   
   

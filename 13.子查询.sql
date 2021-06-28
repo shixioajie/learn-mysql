@@ -423,8 +423,8 @@ SELECT
 FROM
   departments AS dep 
 WHERE dep.`department_id` IN 
-  (SELECT 
-    `employee_id` 
+  (SELECT DISTINCT 
+    `department_id` 
   FROM
     `employees`) ;
 
